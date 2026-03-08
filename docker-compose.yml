@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  flaskapp:
+    web:
+       image: "pravin2012/flask-app:latest"
+    ports:
+      - "80:80"
+    restart: always
