@@ -1,0 +1,47 @@
+@Library("shared") _
+
+pipeline {
+    agent { label "vinod" }
+
+    stages {
+
+        stage('Code Clone') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/pravinyadav20/flaskapp.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    docker_build(
+                        imageName: "pravin2012/flask-app",
+                        imageTag: "latest"
+                    )
+                }
+            }
+        }
+
+        stage('Docker Login & Push') {
+            steps {
+                script {
+                    docker_push(
+                        imageName: "pravin2012/flask-app",
+                        imageTag: "latest",
+                        credentials: "dockerHubCred"
+                    )
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker rm -f flask-app || true
+                docker run -d -p 80:80 --name flask-app pravin2012/flask-app:latest
+                '''
+            }
+        }
+    }
+}
